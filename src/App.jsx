@@ -200,7 +200,7 @@ function App() {
 
   return (
     <div className={cn(
-      "min-h-screen p-4 md:p-8 font-sans transition-colors duration-300",
+      "min-h-screen w-full p-4 md:p-8 font-sans transition-colors duration-300",
       darkMode ? "bg-zinc-950 text-zinc-100" : "bg-zinc-50 text-zinc-900"
     )}>
       <div className="max-w-4xl mx-auto">
