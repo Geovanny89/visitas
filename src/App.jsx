@@ -32,6 +32,7 @@ function App() {
   const [filterVisited, setFilterVisited] = useState('all') // 'all', 'pending', 'visited'
   const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const fileInputRef = useRef(null)
 
   // Save theme to localStorage
@@ -205,12 +206,12 @@ function App() {
   }
 
   const clearData = () => {
-    if (window.confirm('¿Estás seguro de que quieres borrar todos los datos? Esto eliminará los negocios cargados y sus notas.')) {
-      setBusinesses([])
-      setFilterNeighborhood('')
-      setSearchTerm('')
-      setError(null)
-    }
+    setBusinesses([])
+    setFilterNeighborhood('')
+    setFilterVisited('all')
+    setSearchTerm('')
+    setError(null)
+    setShowDeleteConfirm(false)
   }
 
   return (
@@ -268,7 +269,7 @@ function App() {
                   Exportar
                 </button>
                 <button 
-                  onClick={clearData}
+                  onClick={() => setShowDeleteConfirm(true)}
                   className={cn(
                     "flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all active:scale-95 text-sm font-semibold border",
                     darkMode 
@@ -517,6 +518,51 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación para borrar */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={cn(
+            "w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 border",
+            darkMode ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-100"
+          )}>
+            <div className={cn(
+              "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4",
+              darkMode ? "bg-red-500/10 text-red-500" : "bg-red-50 text-red-600"
+            )}>
+              <Trash2 size={32} />
+            </div>
+            <h3 className={cn(
+              "text-xl font-bold text-center mb-2",
+              darkMode ? "text-zinc-100" : "text-zinc-900"
+            )}>
+              ¿Estás seguro?
+            </h3>
+            <p className="text-zinc-500 text-center text-sm mb-6">
+              Esta acción eliminará todos los negocios cargados y sus notas. No se puede deshacer.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={clearData}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-2xl transition-all active:scale-95 shadow-lg shadow-red-900/20"
+              >
+                Sí, borrar todo
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className={cn(
+                  "w-full font-bold py-3.5 rounded-2xl transition-all active:scale-95 border",
+                  darkMode 
+                    ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700" 
+                    : "bg-zinc-100 hover:bg-zinc-200 text-zinc-600 border-zinc-200"
+                )}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
