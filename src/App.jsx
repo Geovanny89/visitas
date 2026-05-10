@@ -29,6 +29,7 @@ function App() {
   })
 
   const [filterNeighborhood, setFilterNeighborhood] = useState('')
+  const [filterVisited, setFilterVisited] = useState('all') // 'all', 'pending', 'visited'
   const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState(null)
   const fileInputRef = useRef(null)
@@ -62,13 +63,18 @@ function App() {
     return businesses.filter(b => {
       const matchesNeighborhood = filterNeighborhood === '' || b.neighborhood === filterNeighborhood
       
+      const matchesVisited = 
+        filterVisited === 'all' || 
+        (filterVisited === 'visited' && b.visited) || 
+        (filterVisited === 'pending' && !b.visited)
+
       const name = String(b?.name || '').toLowerCase()
       const address = String(b?.address || '').toLowerCase()
       
       const matchesSearch = name.includes(term) || address.includes(term)
-      return matchesNeighborhood && matchesSearch
+      return matchesNeighborhood && matchesVisited && matchesSearch
     })
-  }, [businesses, filterNeighborhood, searchTerm])
+  }, [businesses, filterNeighborhood, filterVisited, searchTerm])
 
   const [copiedId, setCopiedId] = useState(null)
 
@@ -312,27 +318,53 @@ function App() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                  <select 
-                    className={cn(
-                      "w-full pl-10 pr-10 py-3 rounded-xl transition-all text-sm outline-none border appearance-none",
-                      darkMode 
-                        ? "bg-zinc-950 border-zinc-800 text-zinc-100 focus:ring-blue-500/50" 
-                        : "bg-zinc-50 border-zinc-200 text-zinc-900 focus:ring-blue-500/20"
-                    )}
-                    value={filterNeighborhood}
-                    onChange={(e) => setFilterNeighborhood(e.target.value)}
-                  >
-                    <option value="">Todos los barrios ({neighborhoods.length})</option>
-                    {neighborhoods.map(n => (
-                      <option key={n} value={n}>{n}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <select 
+                      className={cn(
+                        "w-full pl-10 pr-10 py-3 rounded-xl transition-all text-sm outline-none border appearance-none",
+                        darkMode 
+                          ? "bg-zinc-950 border-zinc-800 text-zinc-100 focus:ring-blue-500/50" 
+                          : "bg-zinc-50 border-zinc-200 text-zinc-900 focus:ring-blue-500/20"
+                      )}
+                      value={filterNeighborhood}
+                      onChange={(e) => setFilterNeighborhood(e.target.value)}
+                    >
+                      <option value="">Todos los barrios ({neighborhoods.length})</option>
+                      {neighborhoods.map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <select 
+                      className={cn(
+                        "w-full pl-10 pr-10 py-3 rounded-xl transition-all text-sm outline-none border appearance-none",
+                        darkMode 
+                          ? "bg-zinc-950 border-zinc-800 text-zinc-100 focus:ring-blue-500/50" 
+                          : "bg-zinc-50 border-zinc-200 text-zinc-900 focus:ring-blue-500/20"
+                      )}
+                      value={filterVisited}
+                      onChange={(e) => setFilterVisited(e.target.value)}
+                    >
+                      <option value="all">Todas las visitas</option>
+                      <option value="pending">Pendientes por visitar</option>
+                      <option value="visited">Ya visitadas</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
