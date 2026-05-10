@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx'
-import { Search, Download, FileText, MapPin, CheckCircle, Upload, Trash2, AlertCircle, Globe, Sun, Moon } from 'lucide-react'
+import { Search, Download, FileText, MapPin, CheckCircle, Upload, Trash2, AlertCircle, Globe, Sun, Moon, Copy, Check } from 'lucide-react'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -69,6 +69,8 @@ function App() {
       return matchesNeighborhood && matchesSearch
     })
   }, [businesses, filterNeighborhood, searchTerm])
+
+  const [copiedId, setCopiedId] = useState(null)
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0]
@@ -166,6 +168,13 @@ function App() {
     setBusinesses(prev => prev.map(b => 
       b.id === id ? { ...b, notes: String(notes) } : b
     ))
+  }
+
+  const copyToClipboard = (text, id) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
+    })
   }
 
   const exportToExcel = () => {
@@ -363,15 +372,25 @@ function App() {
                           </h3>
                           {business.visited && <CheckCircle size={16} className="text-emerald-500 shrink-0" />}
                         </div>
-                        <div className="flex flex-col gap-1 mt-1">
-                          <div className={cn(
-                            "flex items-center gap-1.5 text-sm",
-                            darkMode ? "text-zinc-500" : "text-zinc-600"
-                          )}>
-                            <MapPin size={14} className="shrink-0" />
-                            <span className="truncate">{business.address}</span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex flex-col gap-1 mt-1">
+                            <div 
+                              onClick={() => copyToClipboard(business.address, business.id)}
+                              className={cn(
+                                "flex items-start gap-1.5 text-sm cursor-pointer p-1 -ml-1 rounded transition-colors group",
+                                darkMode ? "text-zinc-400 hover:bg-zinc-800" : "text-zinc-600 hover:bg-zinc-100"
+                              )}
+                              title="Click para copiar"
+                            >
+                              <MapPin size={14} className="shrink-0 mt-0.5" />
+                              <span className="break-words flex-1">{business.address}</span>
+                              <div className={cn(
+                                "shrink-0 p-1 rounded",
+                                copiedId === business.id ? "text-emerald-500" : "opacity-0 group-hover:opacity-100 text-zinc-500 transition-opacity"
+                              )}>
+                                {copiedId === business.id ? <Check size={14} /> : <Copy size={14} />}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
                             <span className={cn(
                               "px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-tight border",
                               darkMode 
